@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -10,7 +9,7 @@ import { Eye, EyeOff, User, Mail, Briefcase, ArrowRight } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { supabaseClient } from "@/lib/supabase-placeholder";
+import { supabase } from "@/integrations/supabase/client";
 
 // Form schema validation
 const formSchema = z.object({
@@ -44,11 +43,21 @@ const RegistrationForm: React.FC = () => {
     setError(null);
 
     try {
-      // Register the user with Supabase Auth
       const { email, password, fullName, companyName } = data;
       
-      // Sign up the user
-      const { data: authData, error: authError } = await supabaseClient.auth.signUp({
+      // First, store the user registration in the user_registrations table
+      const { error: registrationError } = await supabase
+        .from("user_registrations")
+        .insert({
+          full_name: fullName,
+          company_name: companyName,
+          email: email
+        });
+
+      if (registrationError) throw registrationError;
+
+      // Then, attempt to sign up (this is optional, depending on if you want authentication)
+      const { error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -61,31 +70,18 @@ const RegistrationForm: React.FC = () => {
 
       if (authError) throw authError;
 
-      // Store additional user data in Supabase
-      const { error: profileError } = await supabaseClient
-        .from("profiles")
-        .insert({
-          id: authData?.user?.id,
-          full_name: fullName,
-          company_name: companyName,
-          email: email,
-        })
-        .select();
-
-      if (profileError) throw profileError;
-
       toast({
         title: "Cadastro realizado com sucesso!",
-        description: "Você será redirecionado para o dashboard.",
+        description: "Obrigado por se registrar.",
       });
       
-      // Redirect to dashboard after successful registration
-      navigate("/dashboard");
+      // Redirect to a thank you page or the dashboard
+      navigate("/thank-you");
     } catch (error: any) {
       console.error("Registration error:", error);
       
       // Handle specific error messages
-      if (error.message?.includes("already registered")) {
+      if (error.message?.includes("already registered") || error.code === "23505") {
         setError("E-mail já cadastrado. Por favor, use outro e-mail ou faça login.");
       } else {
         setError(error.message || "Erro ao processar cadastro. Tente novamente.");

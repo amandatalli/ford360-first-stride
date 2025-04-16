@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,6 +8,7 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+import ThankYou from "./pages/ThankYou";
 import { useEffect, createContext, useState } from "react";
 
 // This is a placeholder for Supabase authentication context
@@ -68,6 +70,7 @@ const App = () => {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/thank-you" element={<ThankYou />} />
               <Route path="/dashboard" element={
                 <PrivateRoute>
                   <Dashboard />

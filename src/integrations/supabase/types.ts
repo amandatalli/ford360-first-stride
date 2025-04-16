@@ -9,27 +9,27 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      "Dados Searchers": {
+      user_registrations: {
         Row: {
-          "created at": string
-          "E-mail": string | null
-          ID: number
-          "Nome Completo": string | null
-          "Nome da Empresa": string | null
+          company_name: string
+          created_at: string
+          email: string
+          full_name: string
+          id: string
         }
         Insert: {
-          "created at"?: string
-          "E-mail"?: string | null
-          ID?: number
-          "Nome Completo"?: string | null
-          "Nome da Empresa"?: string | null
+          company_name: string
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
         }
         Update: {
-          "created at"?: string
-          "E-mail"?: string | null
-          ID?: number
-          "Nome Completo"?: string | null
-          "Nome da Empresa"?: string | null
+          company_name?: string
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
         }
         Relationships: []
       }
