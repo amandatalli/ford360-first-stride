@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,16 +9,19 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import { useEffect, createContext, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Session, User } from "@supabase/supabase-js";
 
-// This is a placeholder for Supabase authentication context
-// Will be properly implemented when Supabase is connected
+// Auth context type with proper types
 type AuthContextType = {
-  user: any | null;
+  user: User | null;
+  session: Session | null;
   isLoading: boolean;
 };
 
 export const AuthContext = createContext<AuthContextType>({
   user: null,
+  session: null,
   isLoading: true,
 });
 
@@ -25,10 +29,14 @@ const queryClient = new QueryClient();
 
 // Private Route component - redirects to login if user is not authenticated
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
-  // This is a placeholder - will check actual auth status when Supabase is integrated
-  const isAuthenticated = sessionStorage.getItem("isAuthenticated") === "true";
+  const { user, isLoading } = useContext(AuthContext);
   
-  if (!isAuthenticated) {
+  // Show loading state while authentication check is in progress
+  if (isLoading) {
+    return <div>Carregando...</div>;
+  }
+  
+  if (!user) {
     return <Navigate to="/login" />;
   }
   
@@ -36,30 +44,34 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
 };
 
 const App = () => {
-  // Placeholder for auth state management - will be replaced with Supabase
-  const [user, setUser] = useState<any | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // This will be replaced with actual Supabase auth check
-    const checkAuth = async () => {
-      try {
-        const isAuthenticated = sessionStorage.getItem("isAuthenticated") === "true";
-        if (isAuthenticated) {
-          setUser({ id: "placeholder" });
-        }
-      } catch (error) {
-        console.error("Auth check error:", error);
-      } finally {
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, currentSession) => {
+        console.log("Auth state changed:", _event);
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
         setIsLoading(false);
       }
-    };
+    );
 
-    checkAuth();
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      console.log("Got session:", currentSession ? "yes" : "no");
+      setSession(currentSession);
+      setUser(currentSession?.user ?? null);
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading }}>
+    <AuthContext.Provider value={{ user, session, isLoading }}>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <Toaster />

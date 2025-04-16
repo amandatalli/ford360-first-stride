@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,7 +10,9 @@ import { Eye, EyeOff, Mail } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Link, useNavigate } from "react-router-dom";
 import Ford360Logo from "@/components/Ford360Logo";
-import { supabaseClient } from "@/lib/supabase-placeholder";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { AuthContext } from "@/App";
 
 // Form schema validation
 const formSchema = z.object({
@@ -25,6 +27,15 @@ const Login: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const { user } = useContext(AuthContext);
+
+  // Redirect if user is already logged in
+  React.useEffect(() => {
+    if (user) {
+      navigate("/dashboard");
+    }
+  }, [user, navigate]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -40,14 +51,21 @@ const Login: React.FC = () => {
 
     try {
       const { email, password } = data;
+      console.log("Attempting login with:", email);
       
       // Sign in with Supabase
-      const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password
       });
 
       if (authError) throw authError;
+      
+      console.log("Login successful:", authData?.user?.id);
+      toast({
+        title: "Login bem-sucedido",
+        description: "Redirecionando para o dashboard...",
+      });
       
       // Redirect to dashboard after successful login
       navigate("/dashboard");
