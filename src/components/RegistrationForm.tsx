@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -46,6 +47,8 @@ const RegistrationForm: React.FC = () => {
       // Register the user with Supabase Auth
       const { email, password, fullName, companyName } = data;
       
+      console.log("Registrando usuário:", { email, fullName, companyName });
+      
       // Sign up the user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
@@ -60,6 +63,8 @@ const RegistrationForm: React.FC = () => {
 
       if (authError) throw authError;
 
+      console.log("Usuário registrado com sucesso:", authData?.user?.id);
+
       // Store additional user data in Supabase profiles
       const { error: profileError } = await supabase
         .from("profiles")
@@ -68,21 +73,30 @@ const RegistrationForm: React.FC = () => {
           full_name: fullName,
           company_name: companyName,
           email: email,
-        })
-        .select();
+        });
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error("Erro ao criar perfil:", profileError);
+        throw profileError;
+      }
 
-      // Also insert into Dados Searchers for compatibility
+      console.log("Perfil criado com sucesso");
+
+      // Inserir na tabela Dados Searchers - corrigindo para usar apenas as colunas que existem
       const { error: searcherError } = await supabase
         .from("Dados Searchers")
-        .upsert({
+        .insert({
           "Nome Completo": fullName,
           "Nome da Empresa": companyName,
           "E-mail": email,
         });
 
-      if (searcherError) throw searcherError;
+      if (searcherError) {
+        console.error("Erro ao inserir em Dados Searchers:", searcherError);
+        throw searcherError;
+      }
+
+      console.log("Dados inseridos na tabela Dados Searchers");
 
       toast({
         title: "Cadastro realizado com sucesso!",
