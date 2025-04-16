@@ -10,7 +10,7 @@ import { Eye, EyeOff, User, Mail, Briefcase, ArrowRight } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { supabaseClient } from "@/lib/supabase-placeholder";
+import { supabase } from "@/integrations/supabase/client";
 
 // Form schema validation
 const formSchema = z.object({
@@ -48,7 +48,7 @@ const RegistrationForm: React.FC = () => {
       const { email, password, fullName, companyName } = data;
       
       // Sign up the user
-      const { data: authData, error: authError } = await supabaseClient.auth.signUp({
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -62,7 +62,7 @@ const RegistrationForm: React.FC = () => {
       if (authError) throw authError;
 
       // Store additional user data in Supabase
-      const { error: profileError } = await supabaseClient
+      const { error: profileError } = await supabase
         .from("profiles")
         .insert({
           id: authData?.user?.id,

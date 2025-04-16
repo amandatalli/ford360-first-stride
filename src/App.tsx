@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,9 +9,9 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import { useEffect, createContext, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
-// This is a placeholder for Supabase authentication context
-// Will be properly implemented when Supabase is connected
+// Auth context type
 type AuthContextType = {
   user: any | null;
   isLoading: boolean;
@@ -25,7 +26,6 @@ const queryClient = new QueryClient();
 
 // Private Route component - redirects to login if user is not authenticated
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
-  // This is a placeholder - will check actual auth status when Supabase is integrated
   const isAuthenticated = sessionStorage.getItem("isAuthenticated") === "true";
   
   if (!isAuthenticated) {
@@ -36,18 +36,16 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
 };
 
 const App = () => {
-  // Placeholder for auth state management - will be replaced with Supabase
+  // Auth state management with Supabase
   const [user, setUser] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // This will be replaced with actual Supabase auth check
-    const checkAuth = async () => {
+    // Get initial session
+    const getInitialSession = async () => {
       try {
-        const isAuthenticated = sessionStorage.getItem("isAuthenticated") === "true";
-        if (isAuthenticated) {
-          setUser({ id: "placeholder" });
-        }
+        const { data } = await supabase.auth.getSession();
+        setUser(data.session?.user || null);
       } catch (error) {
         console.error("Auth check error:", error);
       } finally {
@@ -55,7 +53,20 @@ const App = () => {
       }
     };
 
-    checkAuth();
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user || null);
+        sessionStorage.setItem("isAuthenticated", session ? "true" : "false");
+      }
+    );
+
+    getInitialSession();
+
+    // Cleanup
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   return (
