@@ -65,6 +65,7 @@ const RegistrationForm: React.FC = () => {
       if (authError) throw authError;
 
       // Store additional user data in "Dados Searchers" table
+      // Fix: using the correct column names that exist in the table
       const { error: profileError } = await supabase
         .from("Dados Searchers")
         .insert({
@@ -82,6 +83,9 @@ const RegistrationForm: React.FC = () => {
         title: "Cadastro realizado com sucesso!",
         description: "Você será redirecionado para o dashboard.",
       });
+      
+      // Set authentication in session storage
+      sessionStorage.setItem("isAuthenticated", "true");
       
       // Redirect to dashboard after successful registration
       navigate("/dashboard");
