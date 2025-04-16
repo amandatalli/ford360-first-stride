@@ -10,7 +10,7 @@ import { Eye, EyeOff, Mail } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Link, useNavigate } from "react-router-dom";
 import Ford360Logo from "@/components/Ford360Logo";
-import { supabaseClient } from "@/lib/supabase-placeholder";
+import { supabase } from "@/integrations/supabase/client";
 
 // Form schema validation
 const formSchema = z.object({
@@ -42,12 +42,15 @@ const Login: React.FC = () => {
       const { email, password } = data;
       
       // Sign in with Supabase
-      const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password
       });
 
       if (authError) throw authError;
+      
+      // Set authentication in session storage
+      sessionStorage.setItem("isAuthenticated", "true");
       
       // Redirect to dashboard after successful login
       navigate("/dashboard");
