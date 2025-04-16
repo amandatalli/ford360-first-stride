@@ -10,7 +10,7 @@ import { Eye, EyeOff, User, Mail, Briefcase, ArrowRight } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { supabaseClient } from "@/lib/supabase-placeholder";
 
 // Form schema validation
 const formSchema = z.object({
@@ -47,10 +47,8 @@ const RegistrationForm: React.FC = () => {
       // Register the user with Supabase Auth
       const { email, password, fullName, companyName } = data;
       
-      console.log("Starting registration for:", email);
-      
       // Sign up the user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const { data: authData, error: authError } = await supabaseClient.auth.signUp({
         email,
         password,
         options: {
@@ -61,48 +59,20 @@ const RegistrationForm: React.FC = () => {
         },
       });
 
-      console.log("Auth signup response:", authData?.user ? "Success" : "Failed", authError ? authError.message : "No error");
-      
       if (authError) throw authError;
-      
-      if (!authData.user?.id) {
-        throw new Error("Falha ao criar usuário. Por favor, tente novamente.");
-      }
 
-      console.log("Created user with ID:", authData.user.id);
-
-      // Store user profile in Supabase profiles table
-      const { error: profileError } = await supabase
+      // Store additional user data in Supabase
+      const { error: profileError } = await supabaseClient
         .from("profiles")
         .insert({
-          id: authData.user.id,
+          id: authData?.user?.id,
           full_name: fullName,
           company_name: companyName,
           email: email,
-        });
+        })
+        .select();
 
-      if (profileError) {
-        console.error("Profile insert error:", profileError);
-        throw new Error("Erro ao salvar perfil: " + profileError.message);
-      }
-      
-      console.log("Successfully created profile");
-
-      // Store data in Dados Searchers table - using the correct column names from the database schema
-      const { error: searcherError } = await supabase
-        .from("Dados Searchers")
-        .insert({
-          "Nome Completo": fullName,
-          "Nome da Empresa": companyName,
-          "E-mail": email
-        });
-
-      if (searcherError) {
-        console.error("Dados Searchers insert error:", searcherError);
-        throw new Error("Erro ao salvar dados: " + searcherError.message);
-      }
-      
-      console.log("Successfully saved to Dados Searchers");
+      if (profileError) throw profileError;
 
       toast({
         title: "Cadastro realizado com sucesso!",

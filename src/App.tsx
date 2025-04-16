@@ -7,32 +7,28 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
-import { useEffect, createContext, useState, useContext } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Session, User } from "@supabase/supabase-js";
+import { useEffect, createContext, useState } from "react";
 
+// This is a placeholder for Supabase authentication context
+// Will be properly implemented when Supabase is connected
 type AuthContextType = {
-  user: User | null;
-  session: Session | null;
+  user: any | null;
   isLoading: boolean;
 };
 
 export const AuthContext = createContext<AuthContextType>({
   user: null,
-  session: null,
   isLoading: true,
 });
 
 const queryClient = new QueryClient();
 
+// Private Route component - redirects to login if user is not authenticated
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
-  const { user, isLoading } = useContext(AuthContext);
+  // This is a placeholder - will check actual auth status when Supabase is integrated
+  const isAuthenticated = sessionStorage.getItem("isAuthenticated") === "true";
   
-  if (isLoading) {
-    return <div>Carregando...</div>;
-  }
-  
-  if (!user) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" />;
   }
   
@@ -40,32 +36,30 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
 };
 
 const App = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  // Placeholder for auth state management - will be replaced with Supabase
+  const [user, setUser] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, currentSession) => {
-        console.log("Auth state changed:", _event);
-        setSession(currentSession);
-        setUser(currentSession?.user ?? null);
+    // This will be replaced with actual Supabase auth check
+    const checkAuth = async () => {
+      try {
+        const isAuthenticated = sessionStorage.getItem("isAuthenticated") === "true";
+        if (isAuthenticated) {
+          setUser({ id: "placeholder" });
+        }
+      } catch (error) {
+        console.error("Auth check error:", error);
+      } finally {
         setIsLoading(false);
       }
-    );
+    };
 
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      console.log("Got session:", currentSession ? "yes" : "no");
-      setSession(currentSession);
-      setUser(currentSession?.user ?? null);
-      setIsLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    checkAuth();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, session, isLoading }}>
+    <AuthContext.Provider value={{ user, isLoading }}>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <Toaster />
