@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,7 +8,6 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import { useEffect, createContext, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 
 // This is a placeholder for Supabase authentication context
 // Will be properly implemented when Supabase is connected
@@ -27,7 +25,7 @@ const queryClient = new QueryClient();
 
 // Private Route component - redirects to login if user is not authenticated
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
-  // Check auth status using Supabase
+  // This is a placeholder - will check actual auth status when Supabase is integrated
   const isAuthenticated = sessionStorage.getItem("isAuthenticated") === "true";
   
   if (!isAuthenticated) {
@@ -38,29 +36,17 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
 };
 
 const App = () => {
-  // Auth state management with Supabase
+  // Placeholder for auth state management - will be replaced with Supabase
   const [user, setUser] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing session with Supabase
+    // This will be replaced with actual Supabase auth check
     const checkAuth = async () => {
       try {
-        const { data } = await supabase.auth.getSession();
-        if (data.session) {
-          setUser(data.session.user);
-          sessionStorage.setItem("isAuthenticated", "true");
-        } else {
-          const isAuthenticated = sessionStorage.getItem("isAuthenticated") === "true";
-          if (isAuthenticated) {
-            // If session storage says authenticated but no actual session, check again
-            const { data: authData } = await supabase.auth.getUser();
-            if (authData?.user) {
-              setUser(authData.user);
-            } else {
-              sessionStorage.removeItem("isAuthenticated");
-            }
-          }
+        const isAuthenticated = sessionStorage.getItem("isAuthenticated") === "true";
+        if (isAuthenticated) {
+          setUser({ id: "placeholder" });
         }
       } catch (error) {
         console.error("Auth check error:", error);
@@ -69,23 +55,7 @@ const App = () => {
       }
     };
 
-    // Set up auth state change listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        setUser(session.user);
-        sessionStorage.setItem("isAuthenticated", "true");
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null);
-        sessionStorage.removeItem("isAuthenticated");
-      }
-    });
-
     checkAuth();
-    
-    // Cleanup subscription
-    return () => {
-      subscription.unsubscribe();
-    };
   }, []);
 
   return (

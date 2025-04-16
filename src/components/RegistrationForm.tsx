@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -9,7 +10,7 @@ import { Eye, EyeOff, User, Mail, Briefcase, ArrowRight } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { supabaseClient } from "@/lib/supabase-placeholder";
 
 // Form schema validation
 const formSchema = z.object({
@@ -43,13 +44,11 @@ const RegistrationForm: React.FC = () => {
     setError(null);
 
     try {
-      console.info("Starting registration for:", data.email);
-      
       // Register the user with Supabase Auth
       const { email, password, fullName, companyName } = data;
       
       // Sign up the user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const { data: authData, error: authError } = await supabaseClient.auth.signUp({
         email,
         password,
         options: {
@@ -60,52 +59,25 @@ const RegistrationForm: React.FC = () => {
         },
       });
 
-      console.info("Auth signup response:", authError?.message || "Success");
       if (authError) throw authError;
 
-      // Log for debugging
-      console.info("Supabase signUp called:", {
-        email,
-        options: {
-          data: {
-            full_name: fullName,
-            company_name: companyName,
-          }
-        }
-      });
-
-      // Store additional user data in "Dados Searchers" table with correct column names
-      // Get the user ID from the auth data
-      const userId = authData?.user?.id || "placeholder-user-id";
-      
-      // Log for debugging
-      console.info("Supabase insert into profiles:", {
-        id: userId,
-        full_name: fullName,
-        company_name: companyName,
-        email: email
-      });
-
-      const { error: profileError } = await supabase
-        .from("Dados Searchers")
+      // Store additional user data in Supabase
+      const { error: profileError } = await supabaseClient
+        .from("profiles")
         .insert({
-          "E-mail": email,
-          "Nome Completo": fullName,
-          "Nome da Empresa": companyName
-        });
+          id: authData?.user?.id,
+          full_name: fullName,
+          company_name: companyName,
+          email: email,
+        })
+        .select();
 
-      if (profileError) {
-        console.error("Error inserting into Dados Searchers:", profileError);
-        throw profileError;
-      }
+      if (profileError) throw profileError;
 
       toast({
         title: "Cadastro realizado com sucesso!",
         description: "Você será redirecionado para o dashboard.",
       });
-      
-      // Set authentication in session storage
-      sessionStorage.setItem("isAuthenticated", "true");
       
       // Redirect to dashboard after successful registration
       navigate("/dashboard");
