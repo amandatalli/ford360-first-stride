@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -61,10 +60,10 @@ const RegistrationForm: React.FC = () => {
 
       if (authError) throw authError;
 
-      // Store additional user data in Supabase
+      // Store additional user data in Supabase profiles
       const { error: profileError } = await supabase
         .from("profiles")
-        .insert({
+        .upsert({
           id: authData?.user?.id,
           full_name: fullName,
           company_name: companyName,
@@ -73,6 +72,17 @@ const RegistrationForm: React.FC = () => {
         .select();
 
       if (profileError) throw profileError;
+
+      // Also insert into Dados Searchers for compatibility
+      const { error: searcherError } = await supabase
+        .from("Dados Searchers")
+        .upsert({
+          "Nome Completo": fullName,
+          "Nome da Empresa": companyName,
+          "E-mail": email,
+        });
+
+      if (searcherError) throw searcherError;
 
       toast({
         title: "Cadastro realizado com sucesso!",
