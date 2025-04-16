@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,11 +7,10 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
-import { useEffect, createContext, useState } from "react";
+import { useEffect, createContext, useState, useContext } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Session, User } from "@supabase/supabase-js";
 
-// Auth context type with proper types
 type AuthContextType = {
   user: User | null;
   session: Session | null;
@@ -27,11 +25,9 @@ export const AuthContext = createContext<AuthContextType>({
 
 const queryClient = new QueryClient();
 
-// Private Route component - redirects to login if user is not authenticated
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
   const { user, isLoading } = useContext(AuthContext);
   
-  // Show loading state while authentication check is in progress
   if (isLoading) {
     return <div>Carregando...</div>;
   }
@@ -49,7 +45,6 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, currentSession) => {
         console.log("Auth state changed:", _event);
@@ -59,7 +54,6 @@ const App = () => {
       }
     );
 
-    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       console.log("Got session:", currentSession ? "yes" : "no");
       setSession(currentSession);

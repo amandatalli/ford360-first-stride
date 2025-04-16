@@ -88,7 +88,7 @@ const RegistrationForm: React.FC = () => {
       
       console.log("Successfully created profile");
 
-      // Store data in Dados Searchers table
+      // Store data in Dados Searchers table - using the correct column names from the database schema
       const { error: searcherError } = await supabase
         .from("Dados Searchers")
         .insert({
