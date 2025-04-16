@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -64,8 +63,29 @@ const RegistrationForm: React.FC = () => {
       console.info("Auth signup response:", authError?.message || "Success");
       if (authError) throw authError;
 
-      // Store additional user data in "Dados Searchers" table
-      // Fix: using the correct column names that exist in the table
+      // Log for debugging
+      console.info("Supabase signUp called:", {
+        email,
+        options: {
+          data: {
+            full_name: fullName,
+            company_name: companyName,
+          }
+        }
+      });
+
+      // Store additional user data in "Dados Searchers" table with correct column names
+      // Get the user ID from the auth data
+      const userId = authData?.user?.id || "placeholder-user-id";
+      
+      // Log for debugging
+      console.info("Supabase insert into profiles:", {
+        id: userId,
+        full_name: fullName,
+        company_name: companyName,
+        email: email
+      });
+
       const { error: profileError } = await supabase
         .from("Dados Searchers")
         .insert({
