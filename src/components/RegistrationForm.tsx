@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -45,16 +46,23 @@ const RegistrationForm: React.FC = () => {
     try {
       const { email, password, fullName, companyName } = data;
       
-      // First, store the user registration in the user_registrations table
-      const { error: registrationError } = await supabase
+      console.log("Attempting to save registration data:", { fullName, companyName, email });
+      
+      // First, directly insert into user_registrations table without authentication
+      const { data: registrationData, error: registrationError } = await supabase
         .from("user_registrations")
-        .insert({
+        .insert([{
           full_name: fullName,
           company_name: companyName,
           email: email
-        });
+        }]);
 
-      if (registrationError) throw registrationError;
+      console.log("Registration insert response:", { registrationData, error: registrationError?.message });
+
+      if (registrationError) {
+        console.error("Registration error details:", registrationError);
+        throw registrationError;
+      }
 
       // Then, attempt to sign up (this is optional, depending on if you want authentication)
       const { error: authError } = await supabase.auth.signUp({
@@ -68,17 +76,22 @@ const RegistrationForm: React.FC = () => {
         },
       });
 
-      if (authError) throw authError;
+      console.log("Auth signup response:", { error: authError?.message });
+
+      if (authError) {
+        // We'll continue even if auth fails as we've already saved the registration
+        console.warn("Auth signup warning (continuing anyway):", authError);
+      }
 
       toast({
         title: "Cadastro realizado com sucesso!",
         description: "Obrigado por se registrar.",
       });
       
-      // Redirect to a thank you page or the dashboard
+      // Redirect to thank you page
       navigate("/thank-you");
     } catch (error: any) {
-      console.error("Registration error:", error);
+      console.error("Registration process error:", error);
       
       // Handle specific error messages
       if (error.message?.includes("already registered") || error.code === "23505") {
