@@ -19,6 +19,13 @@ export default {
 		},
 		extend: {
 			colors: {
+				ford: {
+					dark: '#1A1F2C',
+					darkGray: '#222222',
+					charcoal: '#221F26',
+					blue: '#1EAEDB',
+					skyBlue: '#33C3F0',
+				},
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
@@ -62,6 +69,10 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				}
+			},
+			fontFamily: {
+				sans: ["Inter", "sans-serif"],
+				heading: ["Space Grotesk", "sans-serif"],
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
