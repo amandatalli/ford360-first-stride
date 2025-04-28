@@ -1,51 +1,37 @@
 
 import React from "react";
 import Ford360Logo from "@/components/Ford360Logo";
-import RegistrationForm from "@/components/RegistrationForm";
+import { CompanyDashboard } from "@/components/companies/CompanyDashboard";
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   return (
     <div className="min-h-screen bg-ford-dark text-white flex flex-col">
       {/* Navigation */}
       <header className="border-b border-gray-800 py-4 px-6">
-        <Ford360Logo />
+        <div className="container mx-auto flex justify-between items-center">
+          <Ford360Logo />
+          <div className="flex items-center space-x-4">
+            <Link 
+              to="/company-evaluation" 
+              className="px-4 py-2 bg-ford-blue hover:bg-ford-skyBlue transition-colors rounded text-white"
+            >
+              Nova Avaliação
+            </Link>
+          </div>
+        </div>
       </header>
       
       {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center justify-center p-6">
-        <div className="container max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Left Column - Header */}
-            <div className="flex flex-col justify-center space-y-8">
-              <div className="space-y-4 animate-fade-in" style={{ animationDelay: "0.1s" }}>
-                <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
-                  <span className="text-ford-blue">Ford</span> 360
-                </h1>
-                <p className="text-xl md:text-2xl text-gray-300 leading-relaxed">
-                  Sua central de comando inteligente para transformar dados em valor.
-                </p>
-              </div>
-
-              <div className="bg-secondary/30 p-6 rounded-lg space-y-4 backdrop-blur-sm animate-fade-in" style={{ animationDelay: "0.2s" }}>
-                <h2 className="text-xl font-medium text-ford-blue">Transforme dados em decisões</h2>
-                <p className="text-gray-300">
-                  A plataforma que centraliza dados estratégicos, operacionais e financeiros 
-                  para potencializar a gestão pós-aquisição e maximizar a geração de valor.
-                </p>
-              </div>
-            </div>
-
-            {/* Right Column - Registration Form */}
-            <div className="bg-ford-charcoal rounded-xl shadow-2xl p-8 backdrop-blur-sm animate-fade-in" style={{ animationDelay: "0.3s" }}>
-              <div className="mb-8 text-center">
-                <h2 className="text-2xl font-bold mb-2">Primeiro Acesso</h2>
-                <p className="mt-2 text-sm text-gray-400">
-                  Complete seu cadastro para acessar a plataforma
-                </p>
-              </div>
-
-              <RegistrationForm />
-            </div>
+      <main className="flex-1 container mx-auto py-8 px-6">
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold">Gestão de Empresas</h1>
+            <p className="text-gray-400 mt-2">Avalie e monitore empresas para potenciais aquisições</p>
+          </div>
+          
+          <div className="bg-ford-charcoal p-6 rounded-xl shadow-lg">
+            <CompanyDashboard />
           </div>
         </div>
       </main>
