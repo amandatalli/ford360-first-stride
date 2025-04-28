@@ -7,35 +7,43 @@ type CompanyWithRating = Database["public"]["Tables"]["user_registrations"]["Row
 };
 
 export async function fetchCompaniesWithRatings() {
-  const { data: companies, error } = await supabase
-    .from("user_registrations")
-    .select(`
-      *,
-      rating:company_ratings(*)
-    `);
+  try {
+    const { data: companies, error } = await supabase
+      .from("user_registrations")
+      .select(`
+        *,
+        rating:company_ratings(*)
+      `);
 
-  if (error) {
-    console.error("Error fetching companies:", error);
-    throw error;
-  }
-
-  // Process the data to handle the array of ratings
-  const processedCompanies = companies?.map(company => {
-    // If ratings exist and it's an array, take the first rating (most recent)
-    if (company.rating && Array.isArray(company.rating) && company.rating.length > 0) {
-      return {
-        ...company,
-        rating: company.rating[0]
-      };
+    if (error) {
+      console.error("Error fetching companies:", error);
+      throw error;
     }
-    // If no ratings, return company with undefined rating
-    return {
-      ...company,
-      rating: undefined
-    };
-  });
 
-  return processedCompanies as CompanyWithRating[];
+    // Process the data to handle the array of ratings
+    const processedCompanies = companies?.map(company => {
+      const companyData = { ...company };
+      
+      // If ratings exist and it's an array, take the first rating (most recent)
+      if (companyData.rating && Array.isArray(companyData.rating) && companyData.rating.length > 0) {
+        return {
+          ...companyData,
+          rating: companyData.rating[0]
+        };
+      }
+      
+      // If no ratings, return company with undefined rating
+      return {
+        ...companyData,
+        rating: undefined
+      };
+    });
+
+    return processedCompanies as CompanyWithRating[];
+  } catch (error) {
+    console.error("Failed to fetch companies:", error);
+    return [] as CompanyWithRating[];
+  }
 }
 
 export async function updateCompanyRating(

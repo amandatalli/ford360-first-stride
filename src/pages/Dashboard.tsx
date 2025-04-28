@@ -3,6 +3,7 @@ import React from "react";
 import Ford360Logo from "@/components/Ford360Logo";
 import { CompanyDashboard } from "@/components/companies/CompanyDashboard";
 import { Link } from "react-router-dom";
+import { Card, CardContent } from "@/components/ui/card";
 
 const Dashboard = () => {
   return (
@@ -26,12 +27,24 @@ const Dashboard = () => {
       <main className="flex-1 container mx-auto py-8 px-6">
         <div className="space-y-6">
           <div>
-            <h1 className="text-3xl font-bold">Gestão de Empresas</h1>
+            <h1 className="text-3xl font-bold">Dashboard</h1>
             <p className="text-gray-400 mt-2">Avalie e monitore empresas para potenciais aquisições</p>
           </div>
           
-          <div className="bg-ford-charcoal p-6 rounded-xl shadow-lg">
-            <CompanyDashboard />
+          {/* Welcome Card */}
+          <Card className="bg-ford-charcoal border-gray-800">
+            <CardContent className="p-6">
+              <h2 className="text-xl font-semibold mb-2">Bem-vindo à Ford 360</h2>
+              <p className="text-gray-300">Sua central de comando inteligente está pronta para transformar dados em valor.</p>
+            </CardContent>
+          </Card>
+          
+          {/* Company Dashboard Section */}
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Gestão de Empresas</h2>
+            <div className="bg-ford-charcoal p-6 rounded-xl shadow-lg">
+              <CompanyDashboard />
+            </div>
           </div>
         </div>
       </main>
