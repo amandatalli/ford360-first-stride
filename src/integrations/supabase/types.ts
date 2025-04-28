@@ -9,7 +9,57 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      user_registrations: {
+        Row: {
+          company_name: string
+          competitive_advantage: string | null
+          created_at: string
+          email: string
+          estimated_annual_revenue: string | null
+          full_name: string
+          gross_margin: number | null
+          id: string
+          leverage: number | null
+          main_location: string | null
+          operating_margin: number | null
+          revenue_cagr: number | null
+          revenue_model: string | null
+          sector: string | null
+        }
+        Insert: {
+          company_name: string
+          competitive_advantage?: string | null
+          created_at?: string
+          email: string
+          estimated_annual_revenue?: string | null
+          full_name: string
+          gross_margin?: number | null
+          id?: string
+          leverage?: number | null
+          main_location?: string | null
+          operating_margin?: number | null
+          revenue_cagr?: number | null
+          revenue_model?: string | null
+          sector?: string | null
+        }
+        Update: {
+          company_name?: string
+          competitive_advantage?: string | null
+          created_at?: string
+          email?: string
+          estimated_annual_revenue?: string | null
+          full_name?: string
+          gross_margin?: number | null
+          id?: string
+          leverage?: number | null
+          main_location?: string | null
+          operating_margin?: number | null
+          revenue_cagr?: number | null
+          revenue_model?: string | null
+          sector?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

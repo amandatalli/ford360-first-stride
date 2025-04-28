@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -108,15 +107,15 @@ const RegistrationForm: React.FC = () => {
     setError(null);
 
     try {
-      const { email, password, companyName, ...businessData } = data;
+      const { email, password, ...businessData } = data;
       
-      console.log("Attempting to save registration data:", { companyName, email, ...businessData });
+      console.log("Attempting to save registration data:", { companyName: businessData.companyName, email, ...businessData });
       
       // First, directly insert into user_registrations table
       const { data: registrationData, error: registrationError } = await supabase
         .from("user_registrations")
         .insert([{
-          company_name: companyName,
+          company_name: businessData.companyName,
           email: email,
           sector: businessData.sector,
           estimated_annual_revenue: businessData.estimatedAnnualRevenue,
@@ -137,19 +136,19 @@ const RegistrationForm: React.FC = () => {
       }
 
       // Then, attempt to sign up with authentication
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const { error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
-            company_name: companyName,
+            company_name: businessData.companyName,
             sector: businessData.sector,
             estimated_annual_revenue: businessData.estimatedAnnualRevenue
           },
         },
       });
 
-      console.log("Auth signup response:", { data: authData, error: authError?.message });
+      console.log("Auth signup response:", { error: authError?.message });
 
       if (authError) {
         // We'll continue even if auth fails as we've already saved the registration
@@ -162,10 +161,10 @@ const RegistrationForm: React.FC = () => {
       });
       
       // If auth was successful, redirect to dashboard, otherwise to thank you page
-      if (authData?.user) {
-        navigate("/dashboard");
-      } else {
+      if (authError) {
         navigate("/thank-you");
+      } else {
+        navigate("/dashboard");
       }
     } catch (error: any) {
       console.error("Registration process error:", error);
@@ -475,7 +474,7 @@ const RegistrationForm: React.FC = () => {
                     <button 
                       type="button" 
                       className="absolute right-3 top-3" 
-                      onClick={togglePasswordVisibility}
+                      onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? (
                         <EyeOff className="h-5 w-5 text-muted-foreground" />
