@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import ThankYou from "./pages/ThankYou";
+import CompanyEvaluation from "./pages/CompanyEvaluation";
 import { useEffect, createContext, useState } from "react";
 
 // This is a placeholder for Supabase authentication context
@@ -74,6 +75,11 @@ const App = () => {
               <Route path="/dashboard" element={
                 <PrivateRoute>
                   <Dashboard />
+                </PrivateRoute>
+              } />
+              <Route path="/company-evaluation" element={
+                <PrivateRoute>
+                  <CompanyEvaluation />
                 </PrivateRoute>
               } />
               <Route path="*" element={<NotFound />} />
