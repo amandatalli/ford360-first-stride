@@ -19,7 +19,23 @@ export async function fetchCompaniesWithRatings() {
     throw error;
   }
 
-  return companies as CompanyWithRating[];
+  // Process the data to handle the array of ratings
+  const processedCompanies = companies?.map(company => {
+    // If ratings exist and it's an array, take the first rating (most recent)
+    if (company.rating && Array.isArray(company.rating) && company.rating.length > 0) {
+      return {
+        ...company,
+        rating: company.rating[0]
+      };
+    }
+    // If no ratings, return company with undefined rating
+    return {
+      ...company,
+      rating: undefined
+    };
+  });
+
+  return processedCompanies as CompanyWithRating[];
 }
 
 export async function updateCompanyRating(
