@@ -9,6 +9,59 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      company_ratings: {
+        Row: {
+          approval_status: string
+          company_registration_id: string
+          created_at: string
+          evaluator_id: string
+          growth_weight: number | null
+          id: string
+          justification: string
+          rating: number
+          risk_weight: number | null
+          strategic_fit_weight: number | null
+          updated_at: string
+          valuation_weight: number | null
+        }
+        Insert: {
+          approval_status: string
+          company_registration_id: string
+          created_at?: string
+          evaluator_id: string
+          growth_weight?: number | null
+          id?: string
+          justification: string
+          rating: number
+          risk_weight?: number | null
+          strategic_fit_weight?: number | null
+          updated_at?: string
+          valuation_weight?: number | null
+        }
+        Update: {
+          approval_status?: string
+          company_registration_id?: string
+          created_at?: string
+          evaluator_id?: string
+          growth_weight?: number | null
+          id?: string
+          justification?: string
+          rating?: number
+          risk_weight?: number | null
+          strategic_fit_weight?: number | null
+          updated_at?: string
+          valuation_weight?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_company_registration"
+            columns: ["company_registration_id"]
+            isOneToOne: false
+            referencedRelation: "user_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_registrations: {
         Row: {
           company_name: string
