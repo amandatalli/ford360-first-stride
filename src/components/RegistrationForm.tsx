@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -114,7 +115,7 @@ const RegistrationForm: React.FC = () => {
       // First, directly insert into user_registrations table
       const { data: registrationData, error: registrationError } = await supabase
         .from("user_registrations")
-        .insert([{
+        .insert({
           company_name: businessData.companyName,
           email: email,
           sector: businessData.sector,
@@ -125,8 +126,9 @@ const RegistrationForm: React.FC = () => {
           revenue_cagr: parseFloat(businessData.revenueCagr),
           competitive_advantage: businessData.competitiveAdvantage,
           main_location: businessData.mainLocation,
-          revenue_model: businessData.revenueModel
-        }]);
+          revenue_model: businessData.revenueModel,
+          full_name: businessData.companyName // Using company name as full_name as a fallback since we don't collect it
+        });
 
       console.log("Registration insert response:", { registrationData, error: registrationError?.message });
 
