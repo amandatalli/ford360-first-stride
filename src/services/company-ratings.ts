@@ -50,36 +50,59 @@ export async function updateCompanyRating(
   companyId: string,
   rating: number,
   approvalStatus: "Approved" | "Under Evaluation" | "Not Approved",
-  justification: string
+  justification: string,
+  strategicFitWeight: number = 0.4,
+  valuationWeight: number = 0.3,
+  riskWeight: number = 0.2,
+  growthWeight: number = 0.1
 ) {
-  const { data: existingRating } = await supabase
-    .from("company_ratings")
-    .select("*")
-    .eq("company_registration_id", companyId)
-    .maybeSingle();
-
-  if (existingRating) {
-    const { error } = await supabase
+  try {
+    const { data: existingRating } = await supabase
       .from("company_ratings")
-      .update({
-        rating,
-        approval_status: approvalStatus,
-        justification
-      })
-      .eq("company_registration_id", companyId);
+      .select("*")
+      .eq("company_registration_id", companyId)
+      .maybeSingle();
 
-    if (error) throw error;
-  } else {
-    const { error } = await supabase
-      .from("company_ratings")
-      .insert({
-        company_registration_id: companyId,
-        evaluator_id: (await supabase.auth.getUser()).data.user?.id,
-        rating,
-        approval_status: approvalStatus,
-        justification
-      });
+    if (existingRating) {
+      const { error } = await supabase
+        .from("company_ratings")
+        .update({
+          rating,
+          approval_status: approvalStatus,
+          justification,
+          strategic_fit_weight: strategicFitWeight,
+          valuation_weight: valuationWeight,
+          risk_weight: riskWeight,
+          growth_weight: growthWeight
+        })
+        .eq("id", existingRating.id);
 
-    if (error) throw error;
+      if (error) {
+        console.error("Error updating rating:", error);
+        throw error;
+      }
+    } else {
+      const { error } = await supabase
+        .from("company_ratings")
+        .insert({
+          company_registration_id: companyId,
+          evaluator_id: (await supabase.auth.getUser()).data.user?.id || "anonymous",
+          rating,
+          approval_status: approvalStatus,
+          justification,
+          strategic_fit_weight: strategicFitWeight,
+          valuation_weight: valuationWeight,
+          risk_weight: riskWeight,
+          growth_weight: growthWeight
+        });
+
+      if (error) {
+        console.error("Error inserting rating:", error);
+        throw error;
+      }
+    }
+  } catch (error) {
+    console.error("Error in updateCompanyRating:", error);
+    throw error;
   }
 }
